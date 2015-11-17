@@ -1,0 +1,31 @@
+---
+jobs:
+- name: job-deploy-discourse
+  serial: true
+  plan:
+  - aggregate:
+    - get: resource-discourse-git
+      trigger: true
+  - aggregate:
+    - put: resource-deploy-discourse
+      params:
+        manifest: resource-discourse-git/manifest-app.yml
+        path: resource-discourse-git
+        current_app_name: community-stage
+
+resources:
+- name: resource-discourse-git
+  type: git
+  source:
+    uri: https://github.com/dlapiduz/discourse
+    branch: custom
+
+- name: resource-deploy-discourse
+  type: cf
+  source:
+    api: https://api.cloud.gov
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-organization}}
+    space: {{cf-space}}
+    skip_cert_check: false
