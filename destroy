@@ -1,0 +1,68 @@
+#!/bin/sh
+
+#
+# Pipeline destroy script
+#
+# The destroy.sh script loops through all of the defined pipelines and either
+# calls the destroy.sh script in each pipeline directory or runs a default
+# fly destroy-pipeline command if no destroy.sh script is found for the pipeline.
+
+#
+# Load the base script directory so this script does not depend on being 
+# executed from a single directory.
+#
+SCRIPT_DIR="$(cd "$(dirname "$([ `readlink "$0"` ] && echo "`readlink "$0"`" || echo "$0")")"; pwd -P)"
+
+#
+# A little environment validation
+#
+if [ ! -z "$1" ] 
+then
+  FLY_TARGET="$1"
+fi
+if [ -z "$FLY_TARGET" ] 
+then
+  echo "Must specify fly target as parameter or environment variable \$FLY_TARGET" >&2
+  exit 1
+fi
+
+#
+# Generate a list of pipelines once before processing individual pipelines
+#
+PIPELINES="`fly --target "$FLY_TARGET" pipelines`"
+
+#
+# Process each pipeline
+#
+for pipeline in $SCRIPT_DIR/*/; 
+do
+  pipeline_name="`basename $pipeline`"
+    
+  # Exclude certain directories
+  if [[ "$pipeline_name" != tasks && "$pipeline_name" != scripts ]]
+  then
+    if echo "$PIPELINES" | grep "^$pipeline_name "
+    then
+      echo "Pipeline $pipeline_name is registered"
+      pipeline_registered=1
+    else
+      echo "Pipeline $pipeline_name is not registered yet"
+      pipeline_registered=0
+    fi
+    
+    if [ $pipeline_registered -eq 1 ]
+    then
+      if [ -x "$pipeline/destroy" ]
+      then
+        # Run pipeline specific registration process (override)
+        "$pipeline/destroy" "$FLY_TARGET" "$pipeline_name" \
+          "$pipeline" \
+          $pipeline_registered
+      else
+        # Run default pipeline registration process (create and unpause)
+        echo " > Destroying pipeline $pipeline_name via default process"
+        fly --target "$FLY_TARGET" destroy-pipeline --pipeline "$pipeline_name"
+      fi
+    fi
+  fi
+done
