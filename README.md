@@ -10,7 +10,7 @@ Each pipeline in this repository should be contained within a folder that
 contains all of the files related to that pipeline.  In order to keep the
 infrastructure secure all of the credentials and other sensitive information
 contained in the pipeline should be split out of the pipeline YAML file and
-into a credentials YAML file.  You can also create a run script that automates
+into a credentials YAML file.  You can also create run scripts that automate
 the execution or addition of the pipeline through the Concourse
 [fly](http://concourse.ci/fly-cli.html) CLI.
 
@@ -39,27 +39,27 @@ the execution or addition of the pipeline through the Concourse
   this repository to create a secure credentials.yml file.  This file is
   versioned and can be copied to create a new credentials.yml file.
 
-* {repo-root-dir}/{pipeline-name}/register.sh (**optional**)
+* {repo-root-dir}/{pipeline-name}/register (**optional**)
 
-  The register.sh script is used when creating a custom fly registration command
+  The register script is used when creating a custom fly registration command
   sequence.  This is a simple bash script that should call the required fly CLI
   commands to register the pipeline.  This script is not required.
 
-* {repo-root-dir}/{pipeline-name}/destroy.sh (**optional**)
+* {repo-root-dir}/{pipeline-name}/destroy (**optional**)
 
-  The destroy.sh script is used when creating a custom fly removal command
+  The destroy script is used when creating a custom fly removal command
   sequence.  This is a simple bash script that should call the required fly CLI
   commands to remove the pipeline from Concourse.  This script is not required.
 
-* {repo-root-dir}/register.sh
+* {repo-root-dir}/register
 
-  The register.sh script loops through all of the defined pipelines and either
+  The register script loops through all of the defined pipelines and either
   calls the register.sh script in each pipeline directory or runs a default
   **set-pipeline** command is no register.sh script is found for the pipeline.
 
-* {repo-root-dir}/destroy.sh
+* {repo-root-dir}/destroy
 
-  The destroy.sh script loops through all of the defined pipelines and either
+  The destroy script loops through all of the defined pipelines and either
   calls the destroy.sh script in each pipeline directory or runs a default
   **destroy-pipeline** command if no destroy.sh script is found for the pipeline.
 
