@@ -41,7 +41,7 @@ do
   pipeline_credentials="$pipeline/credentials.yml"
     
   # Exclude certain directories
-  if [[ "$pipeline_name" != tasks && "$pipeline_name" != scripts ]]
+  if [[ "$pipeline_name" != tasks ]]
   then
     if echo "$PIPELINES" | grep "^$pipeline_name "
     then
