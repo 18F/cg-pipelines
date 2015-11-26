@@ -39,7 +39,7 @@ do
   pipeline_name="`basename $pipeline`"
 
   # Exclude certain directories
-  if [[ "$pipeline_name" != tasks ]]
+  if [[ "$pipeline_name" != tasks && "$pipeline_name" != docker ]]
   then
     if echo "$PIPELINES" | grep "^$pipeline_name "
     then
