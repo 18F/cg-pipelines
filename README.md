@@ -54,14 +54,14 @@ the execution or addition of the pipeline through the Concourse
 * {repo-root-dir}/register
 
   The register script loops through all of the defined pipelines and either
-  calls the register.sh script in each pipeline directory or runs a default
-  **set-pipeline** command is no register.sh script is found for the pipeline.
+  calls the register script in each pipeline directory or runs a default
+  **set-pipeline** command is no register script is found for the pipeline.
 
 * {repo-root-dir}/destroy
 
   The destroy script loops through all of the defined pipelines and either
-  calls the destroy.sh script in each pipeline directory or runs a default
-  **destroy-pipeline** command if no destroy.sh script is found for the pipeline.
+  calls the destroy script in each pipeline directory or runs a default
+  **destroy-pipeline** command if no destroy script is found for the pipeline.
 
 
 ### Working with Concourse pipelines:
