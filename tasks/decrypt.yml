@@ -1,0 +1,14 @@
+---
+platform: linux
+image: docker:///18fgsa/concourse-task
+
+inputs:
+  - name: pipelines
+
+run:
+  path: pipelines/tasks/decrypt.sh
+
+params:
+  INPUT_FILE:
+  OUTPUT_FILE:
+  PASSPHRASE:

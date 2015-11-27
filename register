@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# Pipeline registration script
+#
+# The register script loops through all of the defined pipelines and either
+# calls the register script in each pipeline directory or runs a default
+# fly set-pipeline command is no register script is found for the pipeline.
+#
+
+#
+# Load the base script directory so this script does not depend on being 
+# executed from a single directory.
+#
+SCRIPT_DIR="$(cd "$(dirname "$([ `readlink "$0"` ] && echo "`readlink "$0"`" || echo "$0")")"; pwd -P)"
+
+#
+# A little environment validation
+#
+if [ ! -z "$1" ] 
+then
+  FLY_TARGET="$1"
+fi
+if [ -z "$FLY_TARGET" ] 
+then
+  echo "Must specify fly target as parameter or environment variable \$FLY_TARGET" >&2
+  exit 1
+fi
+
+#
+# Generate a list of pipelines once before processing individual pipelines
+#
+PIPELINES="`fly --target "$FLY_TARGET" pipelines`"
+
+#
+# Process each pipeline
+#
+for pipeline in $SCRIPT_DIR/*/; 
+do
+  pipeline_name="`basename $pipeline`"
+  pipeline_manifest="$pipeline/pipeline.yml"
+  pipeline_credentials="$pipeline/credentials.yml"
+    
+  # Exclude certain directories
+  if [[ "$pipeline_name" != tasks && "$pipeline_name" != docker ]]
+  then
+    if echo "$PIPELINES" | grep "^$pipeline_name "
+    then
+      echo "Pipeline $pipeline_name is registered"
+      pipeline_registered=1
+    else
+      echo "Pipeline $pipeline_name is not registered yet"
+      pipeline_registered=0
+    fi
+    
+    # Check for existing credentials file (can not create pipeline without)  
+    if [ -f "$pipeline_credentials" ]
+    then
+      if [ -x "$pipeline/register" ]
+      then
+        # Run pipeline specific registration process (override)
+        "$pipeline/register" "$FLY_TARGET" "$pipeline_name" \
+          "$pipeline" \
+          $pipeline_registered
+      else
+        # Run default pipeline registration process (create and unpause)
+        echo " > Configuring pipeline $pipeline_name via default process"
+        
+        echo 'y' | fly --target "$FLY_TARGET" set-pipeline \
+          --pipeline "$pipeline_name" \
+          --config "$pipeline_manifest" \
+          --load-vars-from "$pipeline_credentials"
+          
+        fly --target "$FLY_TARGET" unpause-pipeline --pipeline "$pipeline_name"
+      fi
+    else
+      echo " > Credentials file not found for pipeline: $pipeline_name"
+    fi
+  fi
+done

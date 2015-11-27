@@ -1,0 +1,12 @@
+---
+platform: linux
+image: docker:///18fgsa/concourse-task
+
+inputs:
+  - name: pipelines
+
+run:
+  path: pipelines/tasks/inflate.sh
+
+params:
+  INPUT_DIR:
