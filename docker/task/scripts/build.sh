@@ -20,13 +20,19 @@ apt-get -y install build-essential="$BUILD_ESSENTIAL_VERSION" \
                    git="$GIT_VERSION" \
                    ruby2.0="$RUBY_VERSION" \
                    ruby2.0-dev="$RUBY_DEV_VERSION" \
+                   zlibc="$ZLIBC_VERSION" \
+                   sqlite3="$SQLITE3_VERSION" \
+                   libsqlite3-dev="$LIBSQLITE3_DEV_VERSION" \
+                   zlib1g-dev="$ZLIB1G_DEV_VERSION" \
                    libmysqlclient-dev="$LIBMYSQLCLIENT_DEV_VERSION" \
                    libpopt-dev="$LIBPOPT_DEV_VERSION" \
                    libpq-dev="$LIBPQ_DEV_VERSION" \
                    libssl-dev="$LIBSSL_DEV_VERSION" \
                    libcurl4-openssl-dev="$LIBCURL4_OPENSSL_DEV_VERSION" \
                    libxslt1-dev="$LIBXSLT1_DEV_VERSION" \
-                   libyaml-dev="$LIBYAML_DEV_VERSION"
+                   libyaml-dev="$LIBYAML_DEV_VERSION" \
+                   libreadline6-dev="$LIBREADLINE6_DEV_VERSION"
+
 # Set default versions of ruby and gem to 2.0 versions
 update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby2.0 1
 update-alternatives --install /usr/bin/gem gem /usr/bin/gem2.0 1
@@ -36,5 +42,9 @@ curl -L -o /tmp/spiff.zip "https://github.com/cloudfoundry-incubator/spiff/relea
 unzip /tmp/spiff.zip -d /usr/local/bin
 rm -f /tmp/spiff.zip
 
-echo "5. Installing BOSH CLI"
+echo "5. Installing BOSH Init"
+curl -L -o /usr/local/bin/bosh-init "https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-$BOSH_INIT_RELEASE_VERSION-linux-amd64"
+chmod 755 /usr/local/bin/bosh-init
+
+echo "6. Installing BOSH CLI"
 gem2.0 install bosh_cli -v "$BOSH_CLI_RELEASE_VERSION" --no-ri --no-rdoc
