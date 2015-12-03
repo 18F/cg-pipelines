@@ -1,26 +1,54 @@
 ---
 jobs:
-- name: job-deploy-discourse
+- name: deploy-discourse-stage
   serial: true
   plan:
   - aggregate:
-    - get: resource-discourse-git
+    - get: git-discourse-stage
       trigger: true
   - aggregate:
-    - put: resource-deploy-discourse
+    - put: deploy-community
       params:
-        manifest: resource-discourse-git/manifest-app.yml
-        path: resource-discourse-git
+        manifest: git-discourse-stage/manifest-staging-app.yml
+        path: git-discourse-stage
         current_app_name: community-stage
+    - put: deploy-community
+      params:
+        manifest: git-discourse-stage/manifest-staging-worker.yml
+        path: git-discourse-stage
+        current_app_name: community-stage-worker
+- name: deploy-discourse-prod
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-discourse-prod
+      trigger: true
+  - aggregate:
+    - put: deploy-community
+      params:
+        manifest: git-discourse-prod/manifest-prod-app.yml
+        path: git-discourse-prod
+        current_app_name: community-prod
+    - put: deploy-community
+      params:
+        manifest: git-discourse-prod/manifest-prod-worker.yml
+        path: git-discourse-prod
+        current_app_name: community-prod-worker
+
 
 resources:
-- name: resource-discourse-git
+- name: git-discourse-stage
   type: git
   source:
-    uri: https://github.com/dlapiduz/discourse
-    branch: custom
+    uri: https://github.com/18f/discourse
+    branch: cloud-gov-stage
+- name: git-discourse-prod
+  type: git
+  source:
+    uri: https://github.com/18f/discourse
+    branch: cloud-gov-prod
 
-- name: resource-deploy-discourse
+- name: deploy-community
   type: cf
   source:
     api: https://api.cloud.gov
