@@ -8,7 +8,7 @@ jobs:
   - task: run-compliance-masonry
     config:
       platform: linux
-      image: "docker:///python"
+      image: docker:///geramirez/compliance-masonry-cli-build#0.2
       inputs:
       - name: scripts
         path: /scripts
@@ -20,7 +20,7 @@ jobs:
   - task: create-gitbook
     config:
       platform: linux
-      image: "docker:///node"
+      image: "docker:///geramirez/gitbook-docker"
       inputs:
       - name: scripts
       - name: run-compliance-masonry
