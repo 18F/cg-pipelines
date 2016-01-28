@@ -37,6 +37,7 @@ resources:
   type: git
   source:
     uri: https://github.com/18F/cg-compliance.git
+    branch: master
 - name: scripts
   type: git
   source:
