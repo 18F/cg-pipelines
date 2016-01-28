@@ -1,0 +1,51 @@
+jobs:
+- name: verify-compliance
+  public: true
+  plan:
+  - get: compliance-repository
+    trigger: true
+  - get: scripts
+  - task: run-compliance-masonry
+    config:
+      platform: linux
+      image: "docker:///python"
+      inputs:
+      - name: scripts
+        path: /scripts
+      - name: compliance-repository
+        path: compliance-repository
+      run:
+        path: bash
+        args: ["./scripts/run-compliance-masonry.sh"]
+  - task: create-gitbook
+    config:
+      platform: linux
+      image: "docker:///node"
+      inputs:
+      - name: scripts
+      - name: run-compliance-masonry
+      run:
+        path: bash
+        args: ["./scripts/create-gitbook.sh"]
+  - put: deploy-documentation
+    params:
+      manifest: create-gitbook/run-compliance-masonry/compliance-repository/manifest.yaml
+      path: create-gitbook/run-compliance-masonry/compliance-repository
+
+resources:
+- name: compliance-repository
+  type: git
+  source:
+    uri: https://github.com/18F/cg-compliance.git
+- name: scripts
+  type: git
+  source:
+    uri: https://github.com/geramirez/Concourse-Compliance-Masonry.git
+- name: deploy-documentation
+  type: cf
+  source:
+    api: {{API}}
+    username: {{USERNAME}}
+    password: {{PASSWORD}}
+    organization: {{ORG}}
+    space: {{SPACE}}
