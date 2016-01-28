@@ -16,7 +16,7 @@ jobs:
         path: compliance-repository
       run:
         path: bash
-        args: ["./scripts/run-compliance-masonry.sh"]
+        args: ["-c", "cd compliance-repository && masonry certs LATO && masonry docs gitbook LATO"]
   - task: create-gitbook
     config:
       platform: linux
@@ -26,7 +26,7 @@ jobs:
       - name: run-compliance-masonry
       run:
         path: bash
-        args: ["./scripts/create-gitbook.sh"]
+        args: ["-c", "cd run-compliance-masonry/compliance-repository/exports/gitbook/ && gitbook build"]
   - put: deploy-documentation
     params:
       manifest: create-gitbook/run-compliance-masonry/compliance-repository/manifest.yaml
