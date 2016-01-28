@@ -4,14 +4,12 @@ jobs:
   plan:
   - get: compliance-repository
     trigger: true
-  - get: scripts
   - task: run-compliance-masonry
     config:
       platform: linux
       image: docker:///geramirez/compliance-masonry-cli-build#0.2
       inputs:
-      - name: scripts
-        path: /scripts
+
       - name: compliance-repository
         path: compliance-repository
       run:
@@ -22,7 +20,6 @@ jobs:
       platform: linux
       image: "docker:///geramirez/gitbook-docker"
       inputs:
-      - name: scripts
       - name: run-compliance-masonry
       run:
         path: bash
@@ -38,10 +35,6 @@ resources:
   source:
     uri: https://github.com/18F/cg-compliance.git
     branch: master
-- name: scripts
-  type: git
-  source:
-    uri: https://github.com/geramirez/Concourse-Compliance-Masonry.git
 - name: deploy-documentation
   type: cf
   source:
