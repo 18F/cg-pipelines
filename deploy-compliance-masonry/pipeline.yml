@@ -1,5 +1,5 @@
 jobs:
-- name: verify-compliance
+- name: Deploy compliance.cloud.gov 
   public: true
   plan:
   - get: compliance-repository
