@@ -18,8 +18,8 @@ jobs:
         globs:
           - concourse-*.tgz
           - garden-linux-*.tgz
-    - get: slack-notification-release
-      trigger: true
+    # - get: slack-notification-release
+    #   trigger: true
   - task: concourse-decrypt
     file: pipelines/tasks/decrypt.yml
     config:
@@ -28,7 +28,7 @@ jobs:
         - name: concourse-private-production
       params:
         INPUT_FILE: concourse-private-production/concourse.yml
-        OUTPUT_FILE: concourse.yml
+        OUTPUT_FILE: decrypt/concourse.yml
         PASSPHRASE: {{concourse-production-private-passphrase}}
   - task: concourse-manifest
     file: pipelines/tasks/spiff-merge.yml
@@ -36,25 +36,25 @@ jobs:
       inputs:
         - name: pipelines
         - name: concourse-config
-        - name: concourse-decrypt
+        - name: decrypt
       params:
-        OUTPUT_FILE: manifest.yml
+        OUTPUT_FILE: spiff-merge/manifest.ym
         SOURCE_FILE: concourse-config/concourse/concourse.yml
-        MERGE_FILES: concourse-decrypt/concourse.yml
+        MERGE_FILES: decrypt/concourse.yml
   - task: bosh-prod-ssl-cert
     file: pipelines/tasks/write_file.yml
     config:
       params:
-        FILE_NAME: BOSHRootCA.pem
+        FILE_NAME: write_file/BOSHRootCA.pem
         CONTENT: {{concourse-production-deployment-bosh-cert}}
   - put: concourse-production-deployment
     params:
-      cert: bosh-prod-ssl-cert/BOSHRootCA.pem
-      manifest: concourse-manifest/manifest.yml
+      cert: write_file/BOSHRootCA.pem
+      manifest: spiff-merge/manifest.yml
       releases:
         - concourse-release/concourse-*.tgz
         - concourse-release/garden-linux-*.tgz
-        - slack-notification-release/release.tgz
+        # - slack-notification-release/release.tgz
       stemcells:
         - concourse-stemcell/*.tgz
     on_failure:
@@ -119,10 +119,10 @@ resources:
     deployment: {{concourse-production-deployment-bosh-deployment}}
     ignore_ssl: false
 
-- name: slack-notification-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-community/slack-notification-resource-boshrelease
+# - name: slack-notification-release
+#   type: bosh-io-release
+#   source:
+#     repository: cloudfoundry-community/slack-notification-resource-boshrelease
 
 - name: slack
   type: slack-notification
