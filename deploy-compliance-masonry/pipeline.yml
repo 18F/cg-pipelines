@@ -12,10 +12,9 @@ jobs:
       - name: compliance-repository
       outputs:
       - name: masonry-exports
-        path: compliance-repository/exports/
       run:
         path: bash
-        args: ["-c", "cd compliance-repository && masonry certs LATO && masonry docs gitbook LATO"]
+        args: ["-c", "masonry certs -d compliance-repository/data LATO && masonry docs -d compliance-repository/data -o masonry-exports gitbook LATO"]
   - task: create-gitbook
     config:
       platform: linux
