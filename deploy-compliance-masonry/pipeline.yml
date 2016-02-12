@@ -1,5 +1,5 @@
 jobs:
-- name: Deploy compliance.cloud.gov 
+- name: Deploy compliance.cloud.gov
   public: true
   plan:
   - get: compliance-repository
@@ -10,6 +10,9 @@ jobs:
       image: docker:///geramirez/compliance-masonry-cli-build#0.3
       inputs:
       - name: compliance-repository
+      outputs:
+      - name: masonry-exports
+        path: compliance-repository/exports/
       run:
         path: bash
         args: ["-c", "cd compliance-repository && masonry certs LATO && masonry docs gitbook LATO"]
@@ -18,15 +21,17 @@ jobs:
       platform: linux
       image: "docker:///geramirez/gitbook-docker"
       inputs:
-      - name: compliance-repository 
-      - name: run-compliance-masonry
+      - name: compliance-repository
+      - name: masonry-exports
+      outputs:
+      - name: prepared-gitbook
       run:
         path: bash
-        args: ["-c", "mv compliance-repository/book.json run-compliance-masonry/compliance-repository/exports/gitbook/book.json && cd run-compliance-masonry/compliance-repository/exports/gitbook/ && gitbook build"]
+        args: ["-c", "mv compliance-repository/book.json prepared-gitbook/book.json && mv compliance-repository/Staticfile prepared-gitbook/Staticfile && mv masonry-exports/gitbook/* prepared-gitbook/ && cd prepared-gitbook && gitbook build"]
   - put: deploy-documentation
     params:
-      manifest: create-gitbook/run-compliance-masonry/compliance-repository/manifest.yaml
-      path: create-gitbook/run-compliance-masonry/compliance-repository
+      manifest: compliance-repository/manifest.yaml
+      path: prepared-gitbook
 
 resources:
 - name: compliance-repository
